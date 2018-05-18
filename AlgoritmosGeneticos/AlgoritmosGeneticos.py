@@ -62,14 +62,14 @@ class Individuo():
     
     ### Funcao de mutacao
     def mutacao(self, taxa_mutacao):
-        print ("Antes %s" %self.cromossomo)
+       # print ("Antes %s" %self.cromossomo)
         for i in range (len(self.cromossomo)):
             if ran() < taxa_mutacao:
                 if self.cromossomo[i] == "1":
                     self.cromossomo[i] = "0"
                 else:
                     self.cromossomo[i] = "1"
-        print ("Depois %s" %self.cromossomo)
+       # print ("Depois %s" %self.cromossomo)
         return self
 ### FIM - Classe Individuos ###
     
@@ -106,9 +106,76 @@ class AlgoritmoGenetico():
             soma += individuo.nota_avaliacao
         return soma
     
+    def selecionaPai(self, somatotal):
+        pai = -1
+        valor_sorteado = ran() * somatotal
+        soma = 0
+        i = 0
+        while i < len(self.populacao) and soma < valor_sorteado:
+            soma += self.populacao[i].nota_avaliacao
+            pai+=1
+            i+=1
+        return pai
     
+    def visualizaMelhor(self):
+        melhor = self.populacao[0]
+        print ("G: %s \n Valor: %s \n Espaco: %s \n Cromossomo: %s" % (melhor.geracao,
+                                                                      melhor.nota_avaliacao,
+                                                                      melhor.espaco_usado,
+                                                                      melhor.cromossomo))
     
-    
+    def resolver(self, taxa_mutacao, numero_geracoes, espacos, valores, limite_espacos):
+        ##Inicializa a população aleatoriamente
+        self.inicializaPopulacao(espacos, valores, limite_espacos)
+        
+        ##Avalia os individuos
+        for individuo in self.populacao:
+            individuo.avaliacao()
+        ##Ordena, do melho para o pior e imprime o melhor    
+        self.ordenaPopulacao()
+        self.visualizaMelhor()
+        
+        ##Gerando novas geracoes
+        for geracao in range(numero_geracoes):
+            soma_avaliacao = self.somaAvaliacoes()
+            nova_populacao = []
+            ##Seleciona os pais para as proximas geracoes
+            for individuos in range(0, self.tamanho_populacao, 2):
+                pai1 = self.selecionaPai(soma_avaliacao)
+                pai2 = self.selecionaPai(soma_avaliacao)
+                
+                ##Gera os filhos atraves do crossover
+                filhos = self.populacao[pai1].crossover(self.populacao[pai2])
+                
+                ##Aplica mutacao aos filhos
+                nova_populacao.append(filhos[0].mutacao(taxa_mutacao))
+                nova_populacao.append(filhos[1].mutacao(taxa_mutacao))
+            
+            ##Descarta-se a antiga populacao e passa a nova
+            self.populacao = list(nova_populacao)
+            
+            ##Avalia novamente cada individuo
+            for individuo in self.populacao:
+                individuo.avaliacao()
+            ##Ordena a populacao
+            self.ordenaPopulacao()
+            #Visualiza o melhor entre todas as geracoes
+            self.visualizaMelhor()
+            ##Separa o melhor individuo
+            melhor = self.populacao[0]
+            
+            self.melhorIndividuo(melhor)
+            
+        print("\nMelhor solucao  -> G: %s -> Valor: %s -> Espaco: %s => CROMOSSOMO: %s" % 
+              (self.melhor_solucao.geracao,
+               self.melhor_solucao.nota_avaliacao,
+               self.melhor_solucao.espaco_usado,
+               self.melhor_solucao.cromossomo))
+            
+        return self.melhor_solucao.cromossomo
+            
+            
+            
 if __name__ == '__main__':
 
     lista_produtos = []
@@ -138,62 +205,13 @@ if __name__ == '__main__':
     ### Limite do caminhao em m cubico
     limite = 3
     ### Tamanho populacao incicial
-    tamanho_pop = 30
-    
-    
+    tamanho_pop = 20
+    taxa_mutacao = 0.01
+    numero_geracoes = 101
     ag = AlgoritmoGenetico(tamanho_pop)
-    ag.inicializaPopulacao(espacos, valores, limite)
     
+    resultado = ag.resolver(taxa_mutacao, numero_geracoes, espacos, valores, limite)
     
-    for individuos in ag.populacao:
-        individuos.avaliacao()
-    ag.ordenaPopulacao()
-    ag.melhorIndividuo(ag.populacao[0])
-    print("*** Melhor Individuo ***\nCromossomo = %s\n" %str(ag.melhor_solucao.cromossomo),
-              "Nota = %s" %ag.melhor_solucao.nota_avaliacao)
-    
-    
-    
-    
-    
-    """
-    
-    Testes de implementação anteriores
-    
-    ##Inicio Individuo 1
-    individuo1 = Individuo(espacos, valores, limite)
     for i in range(len(lista_produtos)):
-        if individuo1.cromossomo[i] == "1":
+        if resultado[i] == "1":
             print("Nome: %s Valor: %s" % (lista_produtos[i].nome, lista_produtos[i].valor))
-            
-    individuo1.avaliacao()
-    print ("Nota = %s" % individuo1.nota_avaliacao)
-    print ("Espaco Usado = %s" % individuo1.espaco_usado)
-    ### FIM Individuo 1 ###
-    
-    ##########################
-    print("\n Individuo 2 \n")
-    
-    ### Inicio Individuo 2 ###
-    individuo2 = Individuo(espacos, valores, limite)
-    for i in range(len(lista_produtos)):
-        if individuo1.cromossomo[i] == "1":
-            print("Nome: %s Valor: %s" % (lista_produtos[i].nome, lista_produtos[i].valor))
-            
-    individuo2.avaliacao()
-    print ("Nota = %s" % individuo2.nota_avaliacao)
-    print ("Espaco Usado = %s" % individuo2.espaco_usado)
-    ### FIM Individuo 2 ###
-    
-    ## Chamada da função crossover ##
-    
-    filhos = individuo1.crossover(individuo2)
-    print ("\nFilhos: \nFilho1 = %s \nFilho2 = %s" % (filhos[0].cromossomo, filhos[1].cromossomo))
-    
-    ##Mutacao
-    print ("\nMutacao: \n Individuo 1\n")
-    individuo1.mutacao(0.05)
-    print ("\n Individuo 2: \n")
-    individuo2.mutacao(0.08)
-    
-    """
