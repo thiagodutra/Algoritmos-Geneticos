@@ -1,4 +1,6 @@
 from random import random as ran
+import pymysql
+import matplotlib.pyplot as plt
 
 #Classe produto
 class Produto():
@@ -7,7 +9,7 @@ class Produto():
         self.espaco = espaco
         self.valor = valor
 
-#### INICIO - Classe Individuo ###
+#### INICIO - Classe Individuo ####
 class Individuo():
     ##Construtuor do Individuo
     def __init__(self, espacos, valores, limite_espacos, geracao = 0):
@@ -81,6 +83,7 @@ class AlgoritmoGenetico():
         self.populacao = []
         self.geracao = 0
         self.melhor_solucao = 0
+        self.lista_solucoes = []
         
     ### Inicializa a populacao inicial ###    
     def inicializaPopulacao(self, espaco, valores, limite):
@@ -133,6 +136,8 @@ class AlgoritmoGenetico():
             individuo.avaliacao()
         ##Ordena, do melho para o pior e imprime o melhor    
         self.ordenaPopulacao()
+        self.melhor_solucao = self.populacao[0]
+        self.lista_solucoes.append(self.melhor_solucao.nota_avaliacao)
         self.visualizaMelhor()
         
         ##Gerando novas geracoes
@@ -163,6 +168,7 @@ class AlgoritmoGenetico():
             self.visualizaMelhor()
             ##Separa o melhor individuo
             melhor = self.populacao[0]
+            self.lista_solucoes.append(melhor.nota_avaliacao)
             
             self.melhorIndividuo(melhor)
             
@@ -179,7 +185,17 @@ class AlgoritmoGenetico():
 if __name__ == '__main__':
 
     lista_produtos = []
-    lista_produtos.append(Produto("Geladeira Dako", 0.751, 999.90))
+    
+    conexao = pymysql.connect(host='localhost', user='root', passwd='todtod321', db='produtos')
+    bdCursor = conexao.cursor()
+    bdCursor.execute('select nome, espaco, valor, quantidade from produtos')
+    for produto in bdCursor:
+        for i in range(produto[3]):
+            lista_produtos.append(Produto(produto[0], produto[1], produto[2]))
+    
+    bdCursor.close()
+    conexao.close()
+    '''lista_produtos.append(Produto("Geladeira Dako", 0.751, 999.90))
     lista_produtos.append(Produto("Iphone 6", 0.0000899, 2911.12))
     lista_produtos.append(Produto("TV 55' ", 0.400, 4346.99))
     lista_produtos.append(Produto("TV 50' ", 0.290, 3999.90))
@@ -193,7 +209,7 @@ if __name__ == '__main__':
     lista_produtos.append(Produto("Geladeira Consul", 0.870, 1199.89))
     lista_produtos.append(Produto("Notebook Lenovo", 0.498, 1999.90))
     lista_produtos.append(Produto("Notebook Asus", 0.527, 3999.00))
-    
+    '''
     espacos = []
     valores = []
     nomes = []
@@ -203,11 +219,13 @@ if __name__ == '__main__':
         valores.append(produtos.valor)
         nomes.append(produtos.nome)
     ### Limite do caminhao em m cubico
-    limite = 3
+    limite = 20
     ### Tamanho populacao incicial
-    tamanho_pop = 20
+    tamanho_pop = 30
+    ### Taxa mutacão
     taxa_mutacao = 0.01
-    numero_geracoes = 101
+    ### Numero de gerações
+    numero_geracoes = 10000
     ag = AlgoritmoGenetico(tamanho_pop)
     
     resultado = ag.resolver(taxa_mutacao, numero_geracoes, espacos, valores, limite)
@@ -215,3 +233,7 @@ if __name__ == '__main__':
     for i in range(len(lista_produtos)):
         if resultado[i] == "1":
             print("Nome: %s Valor: %s" % (lista_produtos[i].nome, lista_produtos[i].valor))
+            
+    plt.plot(ag.lista_solucoes)
+    plt.title("Valores ")
+    plt.show()

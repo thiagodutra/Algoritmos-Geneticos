@@ -1,0 +1,14 @@
+#/home/thiago/Desenvolvimento/IDEs/Spyder/AlgoritmosGeneticos/AGMinPathGraph
+# GMT Tue May 22 19:37:58 2018
+# 
+A B E F G
+B C J
+E D
+F
+G
+C H D
+J K
+H K
+D I
+I
+K

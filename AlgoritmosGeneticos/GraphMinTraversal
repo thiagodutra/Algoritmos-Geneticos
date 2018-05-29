@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu May 24 17:19:51 2018
+
+@author: thiago
+"""
+
+import matplotlib.pyplot as plt
+import networkx as nx
+
+g = nx.Graph()
+
+g.add_nodes_from(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'])
+
+g.add_weighted_edges_from([('A', 'B', 2), ('A', 'E', 6), 
+                  ('A', 'F', 3), ('A', 'G', 4),
+                  ('B', 'C', 9), ('B', 'J', 7),
+                  ('C', 'D', 8), ('C', 'H', 9), 
+                  ('D', 'I', 5), ('D', 'E', 2),
+                  ('H', 'K', 3), 
+                  ('K', 'J', 4)])
+
+
+
+nx.draw(g, with_labels=True, font_weight='bold')
+
