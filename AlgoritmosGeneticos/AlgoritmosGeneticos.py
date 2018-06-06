@@ -1,5 +1,4 @@
 from random import random as ran
-import pymysql
 import matplotlib.pyplot as plt
 
 #Classe produto
@@ -186,7 +185,7 @@ if __name__ == '__main__':
 
     lista_produtos = []
     
-    conexao = pymysql.connect(host='localhost', user='root', passwd='todtod321', db='produtos')
+    '''conexao = pymysql.connect(host='localhost', user='root', passwd='', db='produtos')
     bdCursor = conexao.cursor()
     bdCursor.execute('select nome, espaco, valor, quantidade from produtos')
     for produto in bdCursor:
@@ -194,8 +193,8 @@ if __name__ == '__main__':
             lista_produtos.append(Produto(produto[0], produto[1], produto[2]))
     
     bdCursor.close()
-    conexao.close()
-    '''lista_produtos.append(Produto("Geladeira Dako", 0.751, 999.90))
+    conexao.close()'''
+    lista_produtos.append(Produto("Geladeira Dako", 0.751, 999.90))
     lista_produtos.append(Produto("Iphone 6", 0.0000899, 2911.12))
     lista_produtos.append(Produto("TV 55' ", 0.400, 4346.99))
     lista_produtos.append(Produto("TV 50' ", 0.290, 3999.90))
@@ -209,7 +208,7 @@ if __name__ == '__main__':
     lista_produtos.append(Produto("Geladeira Consul", 0.870, 1199.89))
     lista_produtos.append(Produto("Notebook Lenovo", 0.498, 1999.90))
     lista_produtos.append(Produto("Notebook Asus", 0.527, 3999.00))
-    '''
+    
     espacos = []
     valores = []
     nomes = []
@@ -219,13 +218,13 @@ if __name__ == '__main__':
         valores.append(produtos.valor)
         nomes.append(produtos.nome)
     ### Limite do caminhao em m cubico
-    limite = 20
+    limite = 3
     ### Tamanho populacao incicial
     tamanho_pop = 30
     ### Taxa mutacão
     taxa_mutacao = 0.01
     ### Numero de gerações
-    numero_geracoes = 10000
+    numero_geracoes = 1000
     ag = AlgoritmoGenetico(tamanho_pop)
     
     resultado = ag.resolver(taxa_mutacao, numero_geracoes, espacos, valores, limite)
